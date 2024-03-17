@@ -44,6 +44,13 @@
 
 <div id="mesesEquivalente"></div>
 
+<!-- Botões para salvar e carregar estado -->
+<div style="text-align: center;">
+  <button onclick="salvarEstado()" style="width: 20%; padding: 10px; background-color: #1b0bff; color: rgb(255, 255, 255);">Salvar Estado</button>
+  <input type="file" id="fileInput" style="display: none;" onchange="carregarEstado(event)">
+  <button onclick="document.getElementById('fileInput').click()" style="width: 20%; padding: 10px; background-color: #c22fc7; color: white;">Carregar Estado</button>
+</div>
+
 <script>
 function calcularCrescimento() {
   var baseAtual = parseInt(document.getElementById("baseAtual").value);
@@ -127,7 +134,63 @@ function updateTaxaCrescimento() {
   calcularCrescimento(); // Atualizar o gráfico com a nova taxa de crescimento
 }
 
-calcularCrescimento(); // Calcula o crescimento ao carregar a página
+// Função para salvar o estado
+function salvarEstado() {
+  var estado = {
+    baseAtual: document.getElementById('baseAtual').value,
+    meta: document.getElementById('meta').value,
+    cicloSemanas: document.getElementById('cicloSemanas').value,
+    numCiclos: document.getElementById('numCiclos').value,
+    taxaCrescimento: document.getElementById('taxaCrescimento').value,
+    aceleracao: document.getElementById('aceleracao').value,
+    corCrescimento: document.getElementById('corCrescimento').value,
+    corAceleracao: document.getElementById('corAceleracao').value
+  };
+
+  var nomeArquivo = prompt('Digite um nome para o arquivo:');
+  if (nomeArquivo) {
+    var conteudo = JSON.stringify(estado);
+    var blob = new Blob([conteudo], {type: 'application/json'});
+    var url = URL.createObjectURL(blob);
+
+    var link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', nomeArquivo + '.json');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert('Estado salvo com sucesso!');
+  }
+}
+
+// Função para carregar o estado
+function carregarEstado(event) {
+  var arquivo = event.target.files[0];
+  var leitor = new FileReader();
+  leitor.onload = function() {
+    var conteudo = leitor.result;
+    var estado = JSON.parse(conteudo);
+
+    document.getElementById('baseAtual').value = estado.baseAtual;
+    document.getElementById('meta').value = estado.meta;
+    document.getElementById('cicloSemanas').value = estado.cicloSemanas;
+    document.getElementById('numCiclos').value = estado.numCiclos;
+    document.getElementById('taxaCrescimento').value = estado.taxaCrescimento;
+    document.getElementById('aceleracao').value = estado.aceleracao;
+    document.getElementById('corCrescimento').value = estado.corCrescimento;
+    document.getElementById('corAceleracao').value = estado.corAceleracao;
+
+    calcularCrescimento(); // Recalcular o crescimento após carregar o estado
+
+    alert('Estado carregado com sucesso!');
+  };
+  leitor.readAsText(arquivo);
+}
 </script>
 
 </body>
